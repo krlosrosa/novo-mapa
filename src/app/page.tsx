@@ -130,7 +130,7 @@ export default function Home() {
               <React.Fragment key={index}>
                 <div className="flex flex-col items-center flex-1 min-w-[200px] max-w-xs mx-auto">
                   {/* Step Number */}
-                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground text-base font-bold mb-1 shadow-sm">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground text-base font-bold mb-4 shadow-sm">
                     {index + 1}
                   </div>
                   <Card className="border border-border shadow-sm w-full flex-1 flex flex-col items-center px-3 pt-1 pb-4">
