@@ -17,15 +17,8 @@ export default function ConfigPage() {
   const router = useRouter()
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Configuração de Impressão</h1>
-          <p className="text-muted-foreground">
-            Configure as opções de impressão dos mapas
-          </p>
-        </div>
-        <div className="flex gap-2">
+      <div className="container mx-auto p-6 space-y-6">
+        <div className="flex gap-2 justify-end">
           <Button variant="outline" size="sm">
             <Save className="w-4 h-4 mr-2" />
             Salvar
@@ -37,33 +30,32 @@ export default function ConfigPage() {
             Imprimir
           </Button>
         </div>
+
+        <Tabs defaultValue="agrupamento" className="space-y-4">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="agrupamento">Agrupamento</TabsTrigger>
+            <TabsTrigger value="datas">Percentuais</TabsTrigger>
+            <TabsTrigger value="quebra">Quebra de Pallet</TabsTrigger>
+            <TabsTrigger value="folhas">Parâmetros</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="agrupamento" className="space-y-4">
+            <AgrupamentoConfig />
+          </TabsContent>
+
+          <TabsContent value="datas" className="space-y-6">
+            <PercentuaisConfig />
+          </TabsContent>
+
+          <TabsContent value="quebra" className="space-y-6">
+            <QuebraPalletConfig />
+          </TabsContent>
+
+          <TabsContent value="folhas" className="space-y-6">
+            <ParametrosConfig />
+          </TabsContent>
+        </Tabs>
       </div>
-
-      <Tabs defaultValue="agrupamento" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="agrupamento">Agrupamento</TabsTrigger>
-          <TabsTrigger value="datas">Percentuais</TabsTrigger>
-          <TabsTrigger value="quebra">Quebra de Pallet</TabsTrigger>
-          <TabsTrigger value="folhas">Parâmetros</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="agrupamento" className="space-y-4">
-          <AgrupamentoConfig />
-        </TabsContent>
-
-        <TabsContent value="datas" className="space-y-6">
-          <PercentuaisConfig />
-        </TabsContent>
-
-        <TabsContent value="quebra" className="space-y-6">
-          <QuebraPalletConfig />
-        </TabsContent>
-
-        <TabsContent value="folhas" className="space-y-6">
-          <ParametrosConfig />
-        </TabsContent>
-      </Tabs>
-    </div>
   )
 }
 

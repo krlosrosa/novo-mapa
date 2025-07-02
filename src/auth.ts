@@ -19,9 +19,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               password: credentials?.password,
             }),
           });
-
-          console.log(res);
-
           if (!res.ok) return null;
 
           const user = await res.json();
@@ -42,9 +39,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           return null;
         }
       },
+      
     }),
   ],
-
+session:{
+  strategy: "jwt",
+  maxAge: 30 * 24 * 60 * 60 // max age de 30 dias
+},
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
