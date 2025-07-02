@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import dynamic from "next/dynamic";
 
 // Importação dinâmica para evitar problemas de SSR
@@ -25,22 +25,14 @@ export default function PrintTabsPage() {
           <TabsList className="gap-2">
             <TabsTrigger value="separacao">Separação</TabsTrigger>
             <TabsTrigger value="carregamento">Carregamento</TabsTrigger>
-            <TabsTrigger value="ambos">Ambos</TabsTrigger>
           </TabsList>
-        </Tabs>
-      </div>
-
-      {/* Conteúdo das tabs */}
-      <div className="print-content">
-        {tab === "separacao" && <Separacao />}
-        {tab === "carregamento" && <CarregamentoPlaceholder />}
-        {tab === "ambos" && (
-          <>
+          <TabsContent value="separacao">
             <Separacao />
-            <div className="my-8 print-page-break" />
+          </TabsContent>
+          <TabsContent value="carregamento">
             <CarregamentoPlaceholder />
-          </>
-        )}
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
