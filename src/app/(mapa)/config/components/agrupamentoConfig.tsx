@@ -16,6 +16,7 @@ import {
 } from "lucide-react"
 
 import { usePrintConfigStore } from "@/features/mapa/store/printConfigStore"
+import { UploadClientesSegregados } from "./UploadClientesSegregados"
 
 type GroupingType = "customerCode" | "transport"
 
@@ -142,13 +143,15 @@ export default function AgrupamentoConfig() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
-              <div className="flex items-center gap-2">
-                <div className="flex-1 h-px bg-border"></div>
-                <span className="text-xs text-muted-foreground">ou</span>
-                <div className="flex-1 h-px bg-border"></div>
-              </div>
+                  <UploadClientesSegregados />
 
-              <div className="flex gap-2">
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 h-px bg-border"></div>
+                    <span className="text-xs text-muted-foreground">ou</span>
+                    <div className="flex-1 h-px bg-border"></div>
+                  </div>
+
+                  <div className="flex gap-2">
                 <Input
                   placeholder="Digite o código do cliente"
                   value={novoCliente}

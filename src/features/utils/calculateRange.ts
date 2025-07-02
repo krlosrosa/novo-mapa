@@ -4,12 +4,6 @@ export type FaixaProduto = {
   faixa: string
 }
 
-interface PalletSeparado {
-  pallet: number;
-  itens: any[];
-}
-
-const LIMITE_PALLET = 100;
 
 const MILISSEGUNDOS_POR_DIA = 1000 * 60 * 60 * 24
 const PERCENTUAL_PADRAO = 5
@@ -37,8 +31,8 @@ const calcularFaixaAvancada = (
   percentualMinimo: number,
   percentualMaximo: number
 ): FaixaProduto => {
-  const diasAdicionais = Math.floor((percentualVidaUtil * percentualMaximo) / 100)
-  const reduzirDias = Math.floor((percentualVidaUtil * percentualMinimo) / 100)
+  const diasAdicionais = Math.floor((percentualVidaUtil * (percentualMaximo/100)))
+  const reduzirDias = Math.floor((percentualVidaUtil * (percentualMinimo/100)))
   
   const dataMaxima = new Date(dataFabricacao)
   dataMaxima.setDate(dataMaxima.getDate() + diasAdicionais)
@@ -92,5 +86,5 @@ export const calcularFaixaProduto = (
     return criarFaixaBasica(dataFabricacao, "Amarela")
   }
   
-  return calcularFaixaAvancada(dataFabricacao, percentualVidaUtil, percentMin, percentMax)
+  return calcularFaixaAvancada(dataFabricacao, shelfLife, percentMin, percentMax)
 }

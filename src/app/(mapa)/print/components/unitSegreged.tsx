@@ -1,6 +1,5 @@
 import { SummarizedGroup, SummarizedProduct } from "@/features/utils/summarize";
-import { useColumnConfigStore, allColumns } from "@/features/mapa/store/columnConfigStore";
-import { SheetConfig, usePrintConfigStore } from "@/features/mapa/store/printConfigStore";
+import { usePrintConfigStore } from "@/features/mapa/store/printConfigStore";
 import _ from "lodash";
 import GroupInfo from "./GroupInfo";
 import GroupSummary from "./GroupSummary";
@@ -12,50 +11,32 @@ type Props = {
   currentIndex: number
 }
 
+// Colunas fixas para unidades segregadas
+const fixedColumns = [
+  { key: "address", label: "Endereço" },
+  { key: "code", label: "Código" },
+  { key: "description", label: "Descrição" },
+  { key: "batch", label: "Lote" },
+  { key: "manufacturingDate", label: "Data Fab." },
+  { key: "quantityUnits", label: "Unidades" },
+];
+
 export default function UnitSegreged({ group, groupKey, total, currentIndex }: Props) {
   const { units } = usePrintConfigStore()
-  const { selectedColumns, columnOrder } = useColumnConfigStore();
 
   let data = _.filter(group.products, (product: SummarizedProduct) => product.quantityUnits > 0);
 
   const isTrue = units !== "same"
 
-  // Usa a ordem salva das colunas para ordenar
-  const columnsToShow = allColumns.filter(col => selectedColumns.includes(col.key));
-  columnsToShow.sort((a, b) => columnOrder.indexOf(a.key) - columnOrder.indexOf(b.key));
-
   // Função utilitária para pegar o valor da coluna
   const getColumnValue = (product: any, key: string) => {
     switch (key) {
-      case "faixa":
-        return product.faixaProduto?.faixa ?? "";
       case "manufacturingDate":
         return product.manufacturingDate
           ? (product.manufacturingDate instanceof Date
             ? product.manufacturingDate.toLocaleDateString('pt-BR')
             : new Date(product.manufacturingDate).toLocaleDateString('pt-BR'))
           : "";
-      case "dataMinima":
-        return product.faixaProduto?.dataMinima
-          ? (product.faixaProduto.dataMinima instanceof Date
-            ? product.faixaProduto.dataMinima.toLocaleDateString('pt-BR')
-            : new Date(product.faixaProduto.dataMinima).toLocaleDateString('pt-BR'))
-          : "";
-      case "dataMaxima":
-        return product.faixaProduto?.dataMaxima
-          ? (product.faixaProduto.dataMaxima instanceof Date
-            ? product.faixaProduto.dataMaxima.toLocaleDateString('pt-BR')
-            : new Date(product.faixaProduto.dataMaxima).toLocaleDateString('pt-BR'))
-          : "";
-      case "percentualPallet":
-        return (
-          <span className={`inline-block px-1 py-0.5 rounded text-xs font-medium whitespace-nowrap ${product.percentualPallet > 80 ? 'bg-green-100 text-green-800' :
-            product.percentualPallet > 50 ? 'bg-yellow-100 text-yellow-800' :
-              'bg-red-100 text-red-800'
-            }`}>
-            {product.percentualPallet.toFixed(1)}%
-          </span>
-        );
       default:
         return product[key] ?? "";
     }
@@ -68,14 +49,14 @@ export default function UnitSegreged({ group, groupKey, total, currentIndex }: P
           group={group}
           total={total}
           currentIndex={currentIndex}
-          title="UNIDADES SEPARADAS"
+          title={`${groupKey.split(" ")[0]} - UNIDADES SEPARADAS`}
         />
         <GroupSummary group={group} type="unit" qtdItems={data.length} />
         <div className="overflow-x-auto md:overflow-x-visible">
           <table className="w-full border-collapse md:table-fixed">
             <thead className="bg-gray-100">
               <tr>
-                {columnsToShow.map(col => (
+                {fixedColumns.map(col => (
                   <th 
                     key={col.key} 
                     data-column={col.key}
@@ -89,7 +70,7 @@ export default function UnitSegreged({ group, groupKey, total, currentIndex }: P
             <tbody className="bg-white divide-y divide-gray-200">
               {data.map((product, index) => (
                 <tr key={index} className="hover:bg-gray-50">
-                  {columnsToShow.map(col => (
+                  {fixedColumns.map(col => (
                     <td 
                       key={col.key} 
                       data-column={col.key}

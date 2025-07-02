@@ -15,29 +15,24 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { usePrintConfigStore } from "@/features/mapa/store/printConfigStore";
-
-function Modal({ open, onClose, children }: { open: boolean, onClose: () => void, children: React.ReactNode }) {
-  if (!open) return null;
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
-      <div className="bg-white rounded-xl shadow-2xl p-0 min-w-[340px] max-w-full w-full relative">
-        <button onClick={onClose} className="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-2xl" aria-label="Fechar">×</button>
-        {children}
-      </div>
-    </div>
-  );
-}
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { GripVertical, RotateCcw, Save, Settings2 } from "lucide-react";
 
 function DragIcon() {
   return (
-    <svg className="w-5 h-5 text-gray-400 mr-2 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
-      <circle cx="6" cy="7" r="1.5"/>
-      <circle cx="6" cy="12" r="1.5"/>
-      <circle cx="6" cy="17" r="1.5"/>
-      <circle cx="12" cy="7" r="1.5"/>
-      <circle cx="12" cy="12" r="1.5"/>
-      <circle cx="12" cy="17" r="1.5"/>
-    </svg>
+    <GripVertical className="w-4 h-4 text-muted-foreground" />
   );
 }
 
@@ -57,8 +52,6 @@ function SortableItem({ col, index }: any) {
     transition,
     opacity: isDragging ? 0.6 : 1,
     zIndex: isDragging ? 10 : 1,
-    background: isDragging ? '#e0e7ff' : isOver ? '#f1f5f9' : undefined,
-    boxShadow: isDragging ? '0 4px 16px 0 rgba(59,130,246,0.15)' : undefined,
   };
 
   return (
@@ -67,13 +60,19 @@ function SortableItem({ col, index }: any) {
       style={style}
       {...attributes}
       {...listeners}
-      className={`flex items-center gap-2 px-4 py-3 bg-white border-b last:border-b-0 rounded transition-colors duration-150 cursor-grab select-none group ${isDragging ? 'ring-2 ring-blue-400' : ''}`}
+      className={`flex items-center gap-2 px-3 py-2 bg-card border border-border rounded-md hover:bg-accent/50 transition-all duration-200 cursor-grab select-none group ${
+        isDragging ? 'ring-2 ring-primary shadow-lg scale-[1.02]' : ''
+      } ${isOver ? 'bg-accent' : ''}`}
       tabIndex={0}
       aria-label={`Mover coluna ${col.label}`}
     >
-      <span className="opacity-60 group-hover:opacity-100 transition-opacity duration-150"><DragIcon /></span>
-      <span className="font-medium text-gray-800">{col.label}</span>
-      <span className="ml-auto text-xs text-gray-400">{index + 1}</span>
+      <div className="opacity-60 group-hover:opacity-100 transition-opacity duration-150">
+        <DragIcon />
+      </div>
+      <span className="font-medium text-foreground flex-1 text-sm">{col.label}</span>
+      <Badge variant="outline" className="text-xs font-medium px-1.5 py-0.5">
+        {index + 1}
+      </Badge>
     </div>
   );
 }
@@ -147,43 +146,66 @@ export default function ColumnConfigModal() {
   };
 
   return (
-    <>
-      <button
-        className="mb-4 px-5 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 font-semibold transition-colors"
-        onClick={() => setShowModal(true)}
-      >
-        Configurar colunas
-      </button>
-      <Modal open={showModal} onClose={() => setShowModal(false)}>
-        <div className="sticky top-0 z-10 bg-white rounded-t-xl border-b px-6 pt-5 pb-3 mb-2">
-          <h2 className="text-xl font-bold text-gray-800">Ordenar colunas</h2>
-          <p className="text-sm text-gray-500 mt-1">Arraste para reordenar as colunas da tabela</p>
+    <Dialog open={showModal} onOpenChange={setShowModal}>
+      <DialogTrigger asChild>
+        <Button variant="default" className="mb-4 gap-2">
+          <Settings2 className="w-4 h-4" />
+          Configurar colunas
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-4xl max-h-[80vh]">
+        <DialogHeader>
+          <DialogTitle className="text-xl font-semibold flex items-center gap-2">
+            <Settings2 className="w-5 h-5 text-primary" />
+            Configurar Colunas
+          </DialogTitle>
+          <DialogDescription className="text-sm text-muted-foreground">
+            Arraste os itens para reordenar as colunas da tabela conforme sua preferência
+          </DialogDescription>
+        </DialogHeader>
+        
+        <Separator />
+        
+        <div className="flex gap-6">
+          <div className="flex-1">
+            <ScrollArea className="h-[400px]">
+              <div className="pr-4">
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={handleDragEnd}
+                >
+                  <SortableContext items={tempColumns} strategy={verticalListSortingStrategy}>
+                    <div className="grid grid-cols-2 gap-2 py-2">
+                      {tempColumns.map((key, idx) => {
+                        const col = allColumns.find(c => c.key === key)!;
+                        return (
+                          <SortableItem
+                            key={col.key}
+                            col={col}
+                            index={idx}
+                          />
+                        );
+                      })}
+                    </div>
+                  </SortableContext>
+                </DndContext>
+              </div>
+            </ScrollArea>
+          </div>
+          
+          <div className="flex flex-col gap-3 w-40">
+            <Button variant="outline" onClick={handleReset} className="gap-2">
+              <RotateCcw className="w-4 h-4" />
+              Restaurar padrão
+            </Button>
+            <Button onClick={handleSave} className="gap-2">
+              <Save className="w-4 h-4" />
+              Salvar configuração
+            </Button>
+          </div>
         </div>
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
-        >
-          <SortableContext items={tempColumns} strategy={verticalListSortingStrategy}>
-            <div className="flex flex-col bg-gray-50 rounded-b-xl overflow-hidden">
-              {tempColumns.map((key, idx) => {
-                const col = allColumns.find(c => c.key === key)!;
-                return (
-                  <SortableItem
-                    key={col.key}
-                    col={col}
-                    index={idx}
-                  />
-                );
-              })}
-            </div>
-          </SortableContext>
-        </DndContext>
-        <div className="flex gap-2 justify-end px-6 py-4 border-t bg-white rounded-b-xl">
-          <button className="px-3 py-1.5 rounded bg-gray-200 hover:bg-gray-300 font-medium" onClick={handleReset}>Restaurar padrão</button>
-          <button className="px-3 py-1.5 rounded bg-blue-600 text-white hover:bg-blue-700 font-semibold" onClick={handleSave}>Salvar</button>
-        </div>
-      </Modal>
-    </>
+      </DialogContent>
+    </Dialog>
   );
 } 
