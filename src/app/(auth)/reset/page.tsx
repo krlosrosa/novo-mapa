@@ -23,7 +23,6 @@ export default function PageResetSenha() {
     new: false,
     confirm: false
   });
-  const [isLoading, setIsLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
 
@@ -36,18 +35,6 @@ export default function PageResetSenha() {
     setShowPasswords(prev => ({ ...prev, [field]: !prev[field] }));
   };
 
-  const handleSubmit = async () => {
-    if (!formData.newPassword || !formData.confirmPassword) {
-      setError('Todos os campos são obrigatórios');
-      return;
-    }
-
-    if (formData.newPassword !== formData.confirmPassword) {
-      setError('As senhas não coincidem');
-      return;
-    }
-
-  };
 
   if (success) {
     return (
@@ -140,14 +127,6 @@ export default function PageResetSenha() {
               </Button>
             </div>
           </div>
-
-          <Button 
-            onClick={handleSubmit}
-            className="w-full mt-6" 
-            disabled={isLoading}
-          >
-            {isLoading ? "Alterando..." : "Alterar Senha"}
-          </Button>
         </CardContent>
       </Card>
     </div>

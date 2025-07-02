@@ -1,7 +1,7 @@
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { ZapIcon } from "lucide-react"
 
-function ErrorMessage({ message }: { message?: string }) {
+export function ErrorMessage({ message }: { message?: string }) {
   if (!message) return null
   
   return (
