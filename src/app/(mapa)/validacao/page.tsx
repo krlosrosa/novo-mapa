@@ -4,20 +4,25 @@ import { useShipmentStore } from "@/features/mapa/store/shipmentStore";
 import { useWarehouseProductStore } from "@/features/mapa/store/warehouseProductStore";
 import _ from "lodash";
 import { useRouter } from "next/navigation";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { 
-  AlertTriangle, 
-  Info, 
-  CheckCircle, 
-  XCircle, 
-  ArrowRight,
+import { Badge } from "@/components/ui/badge";
+import {
+  AlertTriangle,
   Package,
   Truck,
-  Settings
+  CheckCircle2,
+  ArrowRight,
+  Settings,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useState, useEffect } from "react";
 
 export default function ValidacaoPage() {
   const { dataShipment } = useShipmentStore();
@@ -25,276 +30,312 @@ export default function ValidacaoPage() {
   const { dataRouting } = useRoutingStore();
   const router = useRouter();
 
+  // Lógica de validação (mantida)
   const failProduct = _.differenceBy(dataShipment, dataWarehouseProduct, 'skuCode');
   const failRouting = _.uniqBy(_.differenceBy(dataShipment, dataRouting, 'transport'), 'transport');
 
-  const hasCriticalErrors = failProduct.length > 0;
-  const hasWarnings = failRouting.length > 0;
-  const canProceed = !hasCriticalErrors;
+  // Dados únicos para resumo
+  const uniqueProducts = _.uniqBy(dataShipment, 'skuCode');
+  const uniqueTransports = _.uniqBy(dataShipment, 'transport');
+  const totalItens = uniqueProducts.length;
+  const totalTransportes = uniqueTransports.length;
+  const itensUnicos = _.uniqBy(failProduct, 'skuCode');
+  const transportesUnicos = _.uniqBy(failRouting, 'transport');
+  const hasErrors = itensUnicos.length > 0;
+  const hasWarnings = transportesUnicos.length > 0;
 
-  const handleProceedToConfig = () => {
-    router.push('/config');
-  };
+  // Early return para loading (simulação, pois não há loading real)
+  // Se quiser loading real, pode adicionar um estado de loading
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
-      <div className="max-w-6xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold text-gray-900">Validação de Dados</h1>
-          <p className="text-gray-600">Verificação de integridade dos dados carregados</p>
+    <div className="container mx-auto p-6 space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Validação de Dados</h1>
+          <p className="text-muted-foreground">Verificação de inconsistências nos arquivos importados</p>
         </div>
+        <Badge
+          variant={
+            hasErrors ? "destructive" : hasWarnings ? "secondary" : "default"
+          }
+          className="text-sm"
+        >
+          {hasErrors
+            ? "Erros Críticos"
+            : hasWarnings
+            ? "Avisos"
+            : "Dados Válidos"}
+        </Badge>
+      </div>
 
-        {/* Status Summary */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card className="bg-white shadow-lg">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div className={`p-3 rounded-full ${hasCriticalErrors ? 'bg-red-100' : 'bg-green-100'}`}>
-                    {hasCriticalErrors ? (
-                      <XCircle className="w-6 h-6 text-red-600" />
-                    ) : (
-                      <CheckCircle className="w-6 h-6 text-green-600" />
-                    )}
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">Status Geral</p>
-                    <p className={`text-lg font-bold ${hasCriticalErrors ? 'text-red-600' : 'text-green-600'}`}>
-                      {hasCriticalErrors ? 'Com Erros' : 'Aprovado'}
-                    </p>
-                  </div>
-                </div>
+      {/* Resumo Geral */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            {hasErrors ? (
+              <AlertTriangle className="h-5 w-5 text-destructive" />
+            ) : hasWarnings ? (
+              <AlertTriangle className="h-5 w-5 text-yellow-600" />
+            ) : (
+              <CheckCircle2 className="h-5 w-5 text-green-600" />
+            )}
+            Resumo da Validação
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Total de Itens Únicos */}
+            <div className="text-center p-4 bg-muted rounded-lg">
+              <div className="text-2xl font-bold">{totalItens}</div>
+              <div className="text-sm text-muted-foreground">Itens Únicos</div>
+            </div>
+            {/* Total de Transportes */}
+            <div className="text-center p-4 bg-muted rounded-lg">
+              <div className="text-2xl font-bold">{totalTransportes}</div>
+              <div className="text-sm text-muted-foreground">Transportes</div>
+            </div>
+            {/* Itens sem Cadastro */}
+            <div className="text-center p-4 bg-muted rounded-lg border border-destructive/20">
+              <div className="text-2xl font-bold text-destructive">{itensUnicos.length}</div>
+              <div className="text-sm text-muted-foreground">Itens sem Cadastro</div>
+            </div>
+            {/* Transportes Incompletos */}
+            <div className="text-center p-4 bg-muted rounded-lg border border-yellow-300/20">
+              <div className="text-2xl font-bold text-yellow-600">{transportesUnicos.length}</div>
+              <div className="text-sm text-muted-foreground">Transportes Incompletos</div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Alertas */}
+      {hasErrors && (
+        <Alert>
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            <strong>Erros críticos encontrados!</strong> Existem produtos sem cadastro que impedem o processamento. Corrija os problemas antes de prosseguir.
+          </AlertDescription>
+        </Alert>
+      )}
+      {!hasErrors && hasWarnings && (
+        <Alert className="border-yellow-200 bg-yellow-50 text-yellow-800">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            Alguns transportes não possuem roteirização cadastrada. Isso não impede o processamento, mas pode afetar a eficiência logística.
+          </AlertDescription>
+        </Alert>
+      )}
+      {!hasErrors && !hasWarnings && (
+        <Alert className="border-green-200 bg-green-50 text-green-800">
+          <CheckCircle2 className="h-4 w-4" />
+          <AlertDescription>
+            Todos os dados foram validados com sucesso! Não foram encontradas inconsistências.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Itens sem Cadastro - CRÍTICO */}
+        <Card className={itensUnicos.length > 0 ? "border-destructive" : ""}>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Package className="h-5 w-5" />
+              Produtos sem Cadastro
+              <Badge variant="destructive" className="ml-auto">
+                {itensUnicos.length}
+              </Badge>
+              {itensUnicos.length > 0 && (
+                <Badge variant="destructive" className="text-xs">
+                  CRÍTICO
+                </Badge>
+              )}
+            </CardTitle>
+            <CardDescription>
+              Produtos da remessa que não possuem cadastro no sistema - <strong>Impedem o processamento</strong>
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {itensUnicos.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <CheckCircle2 className="h-12 w-12 mx-auto mb-2 text-green-600" />
+                <p>Todos os itens possuem cadastro válido</p>
               </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-white shadow-lg">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div className="p-3 bg-red-100 rounded-full">
-                    <Package className="w-6 h-6 text-red-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">Produtos Faltantes</p>
-                    <p className="text-lg font-bold text-red-600">{failProduct.length}</p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-white shadow-lg">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div className="p-3 bg-yellow-100 rounded-full">
-                    <Truck className="w-6 h-6 text-yellow-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">Rotas Faltantes</p>
-                    <p className="text-lg font-bold text-yellow-600">{failRouting.length}</p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Critical Errors - Products */}
-        {hasCriticalErrors && (
-          <Card className="bg-white shadow-lg border-red-200">
-            <CardHeader className="bg-red-50 border-b border-red-200">
-              <CardTitle className="flex items-center gap-2 text-red-800">
-                <AlertTriangle className="w-5 h-5" />
-                Erros Críticos - Produtos Não Encontrados
-              </CardTitle>
-              <CardDescription className="text-red-700">
-                Estes produtos não possuem cadastro no sistema e impedem o processamento.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="p-6">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <Badge variant="destructive" className="text-sm">
-                    {failProduct.length} produto{failProduct.length !== 1 ? 's' : ''} sem cadastro
-                  </Badge>
-                </div>
-                
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4 max-h-96 overflow-y-auto">
-                  <div className="space-y-2">
-                    {failProduct.map((product, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 bg-white rounded border border-red-200">
-                        <div className="flex-1">
-                          <p className="font-medium text-gray-900">{product.skuCode}</p>
-                          <p className="text-sm text-gray-600">{product.skuDescription || 'Descrição não disponível'}</p>
+            ) : (
+              <div className="space-y-3 max-h-96 overflow-y-auto">
+                {itensUnicos.map((item, index) => (
+                  <div
+                    key={index}
+                    className="p-3 border rounded-lg bg-muted/50"
+                  >
+                    <div className="flex justify-between items-start gap-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium text-sm mb-1">
+                          Código: {item.skuCode}
                         </div>
-                        <Badge variant="outline" className="text-red-600 border-red-300">
-                          SKU: {product.skuCode}
+                        <div className="text-sm text-muted-foreground truncate">
+                          {item.skuDescription || 'Descrição não disponível'}
+                        </div>
+                      </div>
+                      <Badge variant="outline" className="shrink-0">
+                        Shipment: {item.shipment}
+                      </Badge>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Transportes sem Cadastro - INFORMATIVO */}
+        <Card className={transportesUnicos.length > 0 ? "border-yellow-300" : ""}>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Truck className="h-5 w-5" />
+              Transportes sem Roteirização
+              <Badge variant="secondary" className="ml-auto">
+                {transportesUnicos.length}
+              </Badge>
+              {transportesUnicos.length > 0 && (
+                <Badge
+                  variant="outline"
+                  className="text-xs border-yellow-300 text-yellow-700"
+                >
+                  INFORMATIVO
+                </Badge>
+              )}
+            </CardTitle>
+            <CardDescription>
+              Transportadoras sem roteirização cadastrada - <strong>Não impede o processamento</strong>
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {transportesUnicos.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <CheckCircle2 className="h-12 w-12 mx-auto mb-2 text-green-600" />
+                <p>Todos os transportes possuem roteirização válida</p>
+              </div>
+            ) : (
+              <div className="space-y-3 max-h-96 overflow-y-auto">
+                {transportesUnicos.map((item, index) => {
+                  // Encontrar todos os itens que usam este transporte
+                  const itemsWithThisTransport = dataShipment.filter(s => s.transport === item.transport);
+                  const uniqueShipments = _.uniqBy(itemsWithThisTransport, 'shipment');
+                  return (
+                    <div
+                      key={index}
+                      className="p-3 border rounded-lg bg-muted/50"
+                    >
+                      <div className="flex justify-between items-start gap-3 mb-2">
+                        <div className="flex-1 min-w-0">
+                          <div className="font-medium text-sm mb-1">
+                            Transporte: {item.transport}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            {uniqueShipments.length} shipment{uniqueShipments.length !== 1 ? 's' : ''} / {itemsWithThisTransport.length} item{itemsWithThisTransport.length !== 1 ? 's' : ''} afetado{itemsWithThisTransport.length !== 1 ? 's' : ''}
+                          </div>
+                        </div>
+                        <Badge variant="outline" className="shrink-0">
+                          {item.transport}
                         </Badge>
                       </div>
-                    ))}
-                  </div>
-                </div>
-
-                <Alert className="bg-red-50 border-red-200">
-                  <AlertTriangle className="h-4 w-4 text-red-600" />
-                  <AlertDescription className="text-red-800">
-                    <strong>Ação necessária:</strong> Cadastre estes produtos no sistema antes de prosseguir.
-                  </AlertDescription>
-                </Alert>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Warnings - Routing */}
-        {hasWarnings && (
-          <Card className="bg-white shadow-lg border-yellow-200">
-            <CardHeader className="bg-yellow-50 border-b border-yellow-200">
-              <CardTitle className="flex items-center gap-2 text-yellow-800">
-                <Info className="w-5 h-5" />
-                Avisos - Rotas Não Encontradas
-              </CardTitle>
-              <CardDescription className="text-yellow-700">
-                Estas rotas de transporte não possuem cadastro, mas não impedem o processamento.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="p-6">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <Badge variant="secondary" className="text-sm bg-yellow-100 text-yellow-800">
-                    {failRouting.length} rota{failRouting.length !== 1 ? 's' : ''} sem cadastro
-                  </Badge>
-                </div>
-                
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 max-h-96 overflow-y-auto">
-                  <div className="space-y-2">
-                    {failRouting.map((route, index) => {
-                      // Encontrar todos os itens que usam este transporte
-                      const itemsWithThisTransport = dataShipment.filter(item => item.transport === route.transport);
-                      const uniqueShipments = _.uniqBy(itemsWithThisTransport, 'shipment');
-                      
-                      return (
-                        <div key={index} className="p-4 bg-white rounded border border-yellow-200">
-                          <div className="flex items-center justify-between mb-3">
-                            <div className="flex-1">
-                              <p className="font-medium text-gray-900">{route.transport}</p>
-                              <p className="text-sm text-gray-600">Transporte não cadastrado</p>
-                            </div>
-                            <Badge variant="outline" className="text-yellow-600 border-yellow-300">
-                              {route.transport}
-                            </Badge>
-                          </div>
-                          
-                          <div className="space-y-2">
-                            <div className="flex items-center justify-between text-sm">
-                              <span className="text-gray-600">Shipments afetados:</span>
-                              <Badge variant="secondary" className="text-xs">
-                                {uniqueShipments.length} shipment{uniqueShipments.length !== 1 ? 's' : ''}
+                      {uniqueShipments.length > 0 && (
+                        <div className="mt-2 p-2 bg-gray-50 rounded text-xs">
+                          <p className="font-medium text-gray-700 mb-1">Shipments:</p>
+                          <div className="flex flex-wrap gap-1">
+                            {uniqueShipments.slice(0, 5).map((ship, idx) => (
+                              <Badge key={idx} variant="outline" className="text-xs">
+                                {ship.shipment}
                               </Badge>
-                            </div>
-                            
-                            <div className="flex items-center justify-between text-sm">
-                              <span className="text-gray-600">Itens afetados:</span>
-                              <Badge variant="secondary" className="text-xs">
-                                {itemsWithThisTransport.length} item{itemsWithThisTransport.length !== 1 ? 's' : ''}
+                            ))}
+                            {uniqueShipments.length > 5 && (
+                              <Badge variant="outline" className="text-xs">
+                                +{uniqueShipments.length - 5} mais
                               </Badge>
-                            </div>
-                            
-                            {uniqueShipments.length > 0 && (
-                              <div className="mt-2 p-2 bg-gray-50 rounded text-xs">
-                                <p className="font-medium text-gray-700 mb-1">Shipments:</p>
-                                <div className="flex flex-wrap gap-1">
-                                  {uniqueShipments.slice(0, 5).map((item, idx) => (
-                                    <Badge key={idx} variant="outline" className="text-xs">
-                                      {item.shipment}
-                                    </Badge>
-                                  ))}
-                                  {uniqueShipments.length > 5 && (
-                                    <Badge variant="outline" className="text-xs">
-                                      +{uniqueShipments.length - 5} mais
-                                    </Badge>
-                                  )}
-                                </div>
-                              </div>
                             )}
                           </div>
                         </div>
-                      );
-                    })}
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Seção de Ações */}
+      {(hasErrors || hasWarnings) && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Próximos Passos</CardTitle>
+            <CardDescription>
+              {hasErrors
+                ? "Ações obrigatórias para resolver problemas críticos"
+                : "Recomendações para otimizar o processo"}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {itensUnicos.length > 0 && (
+                <div className="flex items-start gap-3 p-3 border border-destructive/20 rounded-lg bg-destructive/5">
+                  <div className="rounded-full bg-destructive/10 p-1">
+                    <Package className="h-4 w-4 text-destructive" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-medium text-destructive">
+                      🚨 Ação Obrigatória
+                    </div>
+                    <div className="text-sm text-muted-foreground mt-1">
+                      Cadastre os <strong>{itensUnicos.length} produtos faltantes</strong> no sistema antes de processar a remessa. Sem isso, o processamento será bloqueado.
+                    </div>
                   </div>
                 </div>
-
-                <Alert className="bg-yellow-50 border-yellow-200">
-                  <Info className="h-4 w-4 text-yellow-600" />
-                  <AlertDescription className="text-yellow-800">
-                    <strong>Recomendação:</strong> Cadastre estas rotas para melhor organização dos dados.
-                  </AlertDescription>
-                </Alert>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Success State */}
-        {!hasCriticalErrors && !hasWarnings && (
-          <Card className="bg-white shadow-lg border-green-200">
-            <CardHeader className="bg-green-50 border-b border-green-200">
-              <CardTitle className="flex items-center gap-2 text-green-800">
-                <CheckCircle className="w-5 h-5" />
-                Validação Aprovada
-              </CardTitle>
-              <CardDescription className="text-green-700">
-                Todos os dados foram validados com sucesso!
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="p-6">
-              <div className="text-center space-y-4">
-                <div className="p-4 bg-green-100 rounded-full w-fit mx-auto">
-                  <CheckCircle className="w-12 h-12 text-green-600" />
+              )}
+              {transportesUnicos.length > 0 && (
+                <div className="flex items-start gap-3 p-3 border border-yellow-300/20 rounded-lg bg-yellow-50/50">
+                  <div className="rounded-full bg-yellow-100 p-1">
+                    <Truck className="h-4 w-4 text-yellow-700" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-medium text-yellow-800">
+                      💡 Recomendação
+                    </div>
+                    <div className="text-sm text-muted-foreground mt-1">
+                      Ajuste o arquivo de Roteirização para todas as informações saírem no mapa de separação
+                    </div>
+                  </div>
                 </div>
-                <p className="text-green-800 font-medium">
-                  Não foram encontrados erros críticos nos dados carregados.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Action Buttons */}
-        <div className="flex justify-center space-x-4">
-          <Button
-            variant="outline"
-            onClick={() => router.push('/upload')}
-            className="px-6 py-3"
-          >
-            Voltar ao Upload
-          </Button>
-          
-          <Button
-            onClick={handleProceedToConfig}
-            disabled={!canProceed}
-            className={`px-6 py-3 ${canProceed ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-400 cursor-not-allowed'}`}
-          >
-            <Settings className="w-4 h-4 mr-2" />
-            Ir para Configuração
-            <ArrowRight className="w-4 h-4 ml-2" />
-          </Button>
-        </div>
-
-        {/* Summary Footer */}
-        <div className="text-center text-sm text-gray-500">
-          <p>
-            {hasCriticalErrors 
-              ? `Encontrados ${failProduct.length} erro${failProduct.length !== 1 ? 's' : ''} crítico${failProduct.length !== 1 ? 's' : ''} que impedem o processamento.`
-              : hasWarnings
-              ? `Validação aprovada com ${failRouting.length} aviso${failRouting.length !== 1 ? 's' : ''} sobre rotas não cadastradas.`
-              : 'Todos os dados foram validados com sucesso!'
-            }
-          </p>
-        </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+      {/* Botão de Continuar */}
+      <div className="flex justify-end pt-6 gap-4">
+        <Button
+          variant="outline"
+          onClick={() => router.push('/upload')}
+          className="px-6 py-2"
+          aria-label="Voltar ao Upload"
+        >
+          Voltar ao Upload
+        </Button>
+        <Button
+          onClick={() => router.push('/config')}
+          disabled={hasErrors}
+          className={`px-6 py-2 rounded-md font-medium ${
+            hasErrors
+              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+              : "bg-primary text-primary-foreground hover:bg-primary/90"
+          }`}
+          aria-label="Ir para Configuração"
+        >
+          <Settings className="w-4 h-4 mr-2" />
+          Ir para Configuração
+          <ArrowRight className="w-4 h-4 ml-2" />
+        </Button>
       </div>
     </div>
   );

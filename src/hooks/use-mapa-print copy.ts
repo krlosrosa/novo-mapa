@@ -9,11 +9,9 @@ export interface HeaderConfig {
   date?: string;
   showLogo?: boolean;
   showDate?: boolean;
-  printedBy?: string;
 }
 
-export function createTransportPageStyle(transportes: string[], headerConfig?: HeaderConfig): string {
-  const printedBy = headerConfig?.printedBy ? ` | por: ${headerConfig.printedBy}` : '';
+export function createTransportPageStyle(transportes: string[]): string {
   let css = `
     @page {
       size: A4;
@@ -25,7 +23,7 @@ export function createTransportPageStyle(transportes: string[], headerConfig?: H
         color: #6b7280;
       }
       @bottom-left {
-        content: "Impresso em: ${new Date().toLocaleString('pt-BR')}${printedBy}";
+        content: "Impresso em: ${new Date().toLocaleString('pt-BR')}";
         font-size: 8pt;
         font-family: Arial, sans-serif;
         color: #6b7280;
@@ -69,7 +67,6 @@ export function createTransportPageStyle(transportes: string[], headerConfig?: H
 
 const createMapaPageStyle = (headerConfig?: HeaderConfig): string => {
   const currentDate = headerConfig?.date || new Date().toLocaleString('pt-BR');
-  const printedBy = headerConfig?.printedBy ? ` | por: ${headerConfig.printedBy}` : '';
   
   return `
     @page {
@@ -82,7 +79,7 @@ const createMapaPageStyle = (headerConfig?: HeaderConfig): string => {
         color: #6b7280;
       }
       @bottom-left {
-        content: "Impresso em: ${currentDate}${printedBy}";
+        content: "Impresso em: ${currentDate}";
         font-size: 8pt;
         font-family: Arial, sans-serif;
         color: #6b7280;
