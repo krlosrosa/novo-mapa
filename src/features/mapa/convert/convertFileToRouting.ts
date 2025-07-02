@@ -11,7 +11,7 @@ export async function convertFileToRouting(file: File): Promise<RoutingItem[]> {
     licensePlate: String(item["Identif.externo 1"] ?? "").trim(),
     shipment: String(item["Fornecimento"] ?? "").trim(),
     sequence: parseInt(item["Seqüência"]) || 0,
-    customer: String(item["Cliente"] ?? "").trim(),
+    customer: String(item["Cliente"] ?? "").trim().replace(/^0+/, ""),
     customerName: String(item["Nome"] ?? "").trim(),
     location: String(item["Local"] ?? "").trim(),
     routedVehicle: String(item["Veículo Roteirizado"] ?? "").trim(),

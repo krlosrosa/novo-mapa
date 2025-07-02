@@ -19,7 +19,7 @@ export async function convertFileToShipment(file: File): Promise<ShipmentItem[]>
     averageUnit: String(item["Unid.Armaz."] ?? "").trim(),
     manufacturingDate: new Date(item["Dt.Fabricação"]),
     expirationDate: new Date(item["Dt.Vencimento"]),
-    customerCode: String(item["Cód. Cliente"] ?? "").trim(),
+    customerCode: String(item["Cód. Cliente"] ?? "").trim().replace(/^0+/, ""),
     customerName: String(item["Nome Cliente"] ?? "").trim(),
     grossWeight: parseFloat(item["Peso Bruto"]) || 0,
     netWeight: parseFloat(item["Peso Líquido"]) || 0,

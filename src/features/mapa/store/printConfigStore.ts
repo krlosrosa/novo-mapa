@@ -33,6 +33,7 @@ interface State {
   convertBoxesToPallet: boolean
   segregateProductFIFO: boolean
   fifoRanges: string[]
+  showFaixa: boolean
 }
 
 interface Actions {
@@ -75,7 +76,7 @@ interface Actions {
   setFifoRanges: (ranges: string[]) => void
   addFifoRange: (range: string) => void
   removeFifoRange: (range: string) => void
-  
+  setShowFaixa: (show: boolean) => void
   // Reset actions
   reset: () => void
 }
@@ -95,6 +96,7 @@ const initialState: State = {
   convertBoxesToPallet: true,
   segregateProductFIFO: false,
   fifoRanges: [],
+  showFaixa: true
 }
 
 // Store
@@ -204,7 +206,7 @@ export const usePrintConfigStore = create<State & Actions>()(
       setFifoRanges: (ranges) => set({ fifoRanges: ranges }),
       addFifoRange: (range) => set({ fifoRanges: [...get().fifoRanges, range] }),
       removeFifoRange: (range) => set({ fifoRanges: get().fifoRanges.filter(f => f !== range) }),
-
+      setShowFaixa: (show) => set({ showFaixa: show }),
       // Reset actions
       reset: () => set(initialState),
     }),

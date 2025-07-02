@@ -12,6 +12,7 @@ import {
   Snowflake,
   Sun
 } from "lucide-react";
+import { usePrintConfigStore } from "@/features/mapa/store/printConfigStore";
 
 type Props = {
   group: SummarizedGroup
@@ -21,6 +22,7 @@ type Props = {
 }
 
 export default function GroupInfo({ group, total, currentIndex, title }: Props) {
+  const { groupingType } = usePrintConfigStore();
   return (
     <Card className="p-1 border-none">
       <CardContent className="p-1.5 border-none">
@@ -73,11 +75,11 @@ export default function GroupInfo({ group, total, currentIndex, title }: Props) 
                 <span className="text-gray-600">{group.transport}{total > 1 ? ` ${currentIndex}/${total}` : ''}</span>
               </div>
 
-              <div className="flex items-center gap-1.5">
+              {groupingType === "customerCode" && <div className="flex items-center gap-1.5">
                 <User className="h-3 w-3 text-muted-foreground" />
                 <span className="font-medium text-gray-700">Cliente:</span>
                 <span className="text-gray-600">{group.customerInfo.code}</span>
-              </div>
+              </div>}
 
               <div className="flex items-center gap-1.5">
                 <Hash className="h-3 w-3 text-muted-foreground" />

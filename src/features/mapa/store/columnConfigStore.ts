@@ -12,6 +12,7 @@ export const allColumns: Column[] = [
   { key: "description", label: "Descrição", visible: true },
   { key: "batch", label: "Lote", visible: true },
   { key: "manufacturingDate", label: "Data Fab.", visible: true },
+  { key: "faixa", label: "Faixa", visible: true },
   { key: "dataMinima", label: "Dt. Mínima", visible: false },
   { key: "dataMaxima", label: "Dt Máxima", visible: false },
   { key: "quantityPallets", label: "Pallet", visible: true },

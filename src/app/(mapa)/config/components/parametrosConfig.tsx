@@ -8,10 +8,10 @@ import {
   FileText,
   Package2,
   Layers,
-  CalendarDays,
   Router,
   Package,
-  X
+  X,
+  Target
 } from "lucide-react"
 import { usePrintConfigStore } from "@/features/mapa/store/printConfigStore"
 
@@ -32,6 +32,8 @@ export default function ParametrosConfig() {
     setSegregateProductFIFO,
     addFifoRange,
     removeFifoRange,
+    showFaixa,
+    setShowFaixa,
   } = usePrintConfigStore()
 
   // Faixas disponíveis para seleção
@@ -157,30 +159,27 @@ export default function ParametrosConfig() {
             <div className="border rounded-lg p-4 bg-gradient-to-br from-amber-50 to-orange-50">
               <div className="flex items-center gap-2 mb-3">
                 <div className="p-2 bg-amber-100 rounded-lg">
-                  <CalendarDays className="w-5 h-5 text-amber-600" />
+                  <Target className="w-5 h-5 text-amber-600" />
                 </div>
-                <h4 className="font-medium text-amber-900">Range de Data</h4>
+                <h4 className="font-medium text-amber-900">Faixa</h4>
               </div>
               <div className="space-y-2">
                 <div className="flex items-center space-x-2">
                   <Switch
-                    id="showDateRange"
-                    checked={showDateRange}
-                    onCheckedChange={setShowDateRange}
+                    id="showFaixa"
+                    checked={showFaixa}
+                    onCheckedChange={setShowFaixa}
                   />
-                  <Label htmlFor="showDateRange" className="text-sm">
-                    Exibir no mapa
+                  <Label htmlFor="showFaixa" className="text-sm">
+                    Exibir faixa no mapa
                   </Label>
                 </div>
-                {showDateRange && (
-                  <div className="bg-amber-100 border border-amber-200 rounded-lg p-2">
-                    <p className="text-xs text-amber-800">
-                      <strong>Info:</strong> Usa os percentuais da aba "Percentuais"
-                    </p>
-                  </div>
-                )}
+                <p className="text-xs text-muted-foreground">
+                  Mostra a classificação por faixa (Verde, Amarela, Laranja, Vermelha) dos produtos no mapa de separação.
+                </p>
               </div>
             </div>
+
           </div>
 
           <div className="border rounded-lg p-4 bg-gradient-to-br from-purple-50 to-violet-50 mt-4">

@@ -40,7 +40,8 @@ export default function Table({ group, groupKey, total, currentIndex }: Props) {
   const getColumnValue = (product: any, key: string) => {
     switch (key) {
       case "faixa":
-        return product.faixaProduto?.faixa ?? "";
+        const faixa = product.faixaProduto?.faixa ?? "";
+        return faixa === "Verde" ? "" : faixa;
       case "manufacturingDate":
         return product.manufacturingDate
           ? (product.manufacturingDate instanceof Date
@@ -100,7 +101,7 @@ export default function Table({ group, groupKey, total, currentIndex }: Props) {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {data.map((product, index) => (
-                <tr key={index} className="hover:bg-gray-50">
+                <tr key={index} className={`hover:bg-gray-50 ${product.faixaProduto?.faixa !== "Verde" ? 'font-bold bg-neutral-100' : ''}`}>
                   {columnsToShow.map(col => (
                     <td 
                       key={col.key} 

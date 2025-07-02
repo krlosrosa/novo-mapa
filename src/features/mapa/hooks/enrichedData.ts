@@ -21,11 +21,25 @@ export const useEnrichedData = (): EnrichedShipmentItem[] => {
   const { dataShipment } = useShipmentStore();
   const { dataWarehouseProduct } = useWarehouseProductStore();
   const { dataRouting } = useRoutingStore();
-  const { minPercentage, maxPercentage } = usePrintConfigStore();
+  const { minPercentage, maxPercentage, groupingType } = usePrintConfigStore();
 
   const enrichedData = _.map(dataShipment, shipment => {
     const warehouseProduct = _.find(dataWarehouseProduct, { skuCode: shipment.skuCode });
-    const routing = _.find(dataRouting, { shipment: shipment.shipment });
+    
+
+    let routing: RoutingItem | undefined = undefined;
+    if (groupingType === "customerCode") {
+      const info = _.find(dataRouting, { customer: shipment.customerCode })
+      if(info) {
+        routing = info;
+      } else {
+        routing = _.find(dataRouting, { transport: shipment.transport }) as RoutingItem;
+        _.set(routing, "customer", "");
+      }
+    } else {
+      routing = _.find(dataRouting, { transport: shipment.transport }) as RoutingItem;
+      _.set(routing, "customer", "");
+    }
     const saleUnits = convertSaleUnits(shipment.sale, shipment.averageUnit);
     
     // Calcular faixa do produto baseado na data de fabricação e shelf life
@@ -56,6 +70,6 @@ export const useEnrichedData = (): EnrichedShipmentItem[] => {
       faixaProduto
     };
   });
-  console.log(enrichedData)
+  console.log({dataShipment})
   return enrichedData;
 }

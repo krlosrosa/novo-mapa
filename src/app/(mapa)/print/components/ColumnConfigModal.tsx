@@ -24,7 +24,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -79,13 +78,12 @@ function SortableItem({ col, index }: any) {
 
 export default function ColumnConfigModal() {
   const { selectedColumns, columnOrder, setSelectedColumns, setColumnOrder, resetColumns, setColumnVisibility } = useColumnConfigStore();
-  const { units, fullPallets, showDateRange } = usePrintConfigStore();
+  const { units, fullPallets, showDateRange, showFaixa } = usePrintConfigStore();
   const [showModal, setShowModal] = React.useState(false);
   const [tempColumns, setTempColumns] = React.useState(selectedColumns);
 
   React.useEffect(() => {
     if (showModal) {
-      // Show only visible columns in the modal, respecting the saved order
       const visibleColumns = columnOrder.filter(key => 
         allColumns.find(col => col.key === key)?.visible
       );
@@ -93,7 +91,7 @@ export default function ColumnConfigModal() {
     } else {
       setTempColumns(selectedColumns);
     }
-  }, [selectedColumns, columnOrder, showModal]);
+  }, [selectedColumns, columnOrder, showModal, units, fullPallets, showDateRange]);
 
   // Update column visibility based on print configuration
   React.useEffect(() => {
@@ -109,17 +107,23 @@ export default function ColumnConfigModal() {
       setColumnVisibility("quantityPallets", true);
     }
 
+    if(showFaixa) {
+      setColumnVisibility("faixa", true);
+    } else {
+      setColumnVisibility("faixa", false);
+    }
+
     // Control date columns visibility based on showDateRange
     if (showDateRange) {
       setColumnVisibility("dataMinima", true);
       setColumnVisibility("dataMaxima", true);
       setColumnVisibility("manufacturingDate", false);
     } else {
+      setColumnVisibility("manufacturingDate", true);
       setColumnVisibility("dataMinima", false);
       setColumnVisibility("dataMaxima", false);
-      setColumnVisibility("manufacturingDate", true);
     }
-  }, [units, fullPallets, showDateRange, setColumnVisibility]);
+  }, [units, fullPallets, showDateRange,showModal, setColumnVisibility]);
 
   const handleReset = () => {
     const defaultVisibleColumns = allColumns.filter(col => col.visible).map(col => col.key);

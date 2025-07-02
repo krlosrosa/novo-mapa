@@ -80,10 +80,6 @@ export default function PrintPage() {
           </Button>
         </div>
       </div>
-      <p className="text-sm text-gray-500">
-        Info: {JSON.stringify(user?.name)}
-      </p>
-
       {/* Conteúdo para impressão */}
       <div ref={componentRef} className="print-content">
         {Object.entries(summarizedData).map(([groupKey, group], index) => {
