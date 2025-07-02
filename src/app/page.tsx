@@ -123,9 +123,6 @@ export default function Home() {
             <h3 className="text-2xl font-bold text-foreground mb-2">
               Como funciona o sistema?
             </h3>
-            <p className="text-muted-foreground max-w-2xl mx-auto mb-0">
-              Um processo simples e intuitivo em apenas 4 passos
-            </p>
           </div>
           {/* Mobile: grid, Desktop: flex-row with arrows */}
           <div className="grid grid-cols-1 gap-4 lg:flex lg:flex-row lg:items-center lg:justify-center lg:gap-0">
